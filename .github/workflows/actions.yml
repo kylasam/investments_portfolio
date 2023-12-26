@@ -4,6 +4,10 @@ on:
   schedule:
     - cron: '0 0/1 * * *' # Every 1hr
   workflow_dispatch:
+  
+env:
+  PROJECT_ID: kylash-edw
+  SERVICE_NAME: default
 
 defaults:
   run:
@@ -19,7 +23,11 @@ jobs:
       id-token: 'write'
 
     steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+      
     - id: 'auth'
+      name: 'Authenticate to Google Cloud'
       uses: 'google-github-actions/auth@v2'
       with:
         workload_identity_provider: 'projects/516722230723/locations/global/workloadIdentityPools/3rd-party-auth/providers/github'
@@ -27,8 +35,8 @@ jobs:
 
     - name: 'Set up Cloud SDK'
       uses: 'google-github-actions/setup-gcloud@v2'
-      with:
-          version: '>= 390.0.0'
+
 
     - name: 'Use gcloud CLI'
-      run: 'bq ls --max_results 1000 "kylash-edw.dbt_kna"'
+      run: |-
+        gcloud services list --enabled
