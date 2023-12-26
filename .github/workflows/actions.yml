@@ -27,6 +27,8 @@ jobs:
 
     - name: 'Set up Cloud SDK'
       uses: 'google-github-actions/setup-gcloud@v2'
+      with:
+          version: '>= 390.0.0'
 
     - name: 'Use gcloud CLI'
       run: 'bq ls --max_results 1000 "kylash-edw.dbt_kna"'
