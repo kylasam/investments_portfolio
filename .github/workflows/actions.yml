@@ -38,5 +38,4 @@ jobs:
 
 
     - name: 'Use gcloud CLI'
-      run: |-
-        gcloud services list --enabled
+      run: 'gcloud config list'
