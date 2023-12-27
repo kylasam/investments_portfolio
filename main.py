@@ -6,7 +6,7 @@ dataset_id = "dbt_kna"
 table_id = "test_inserts"
 
 # Create a BigQuery client
-client = bigquery.Client(project=project_id)
+client = bigquery.Client()
 
 # Define the rows to be inserted
 rows_to_insert = [
