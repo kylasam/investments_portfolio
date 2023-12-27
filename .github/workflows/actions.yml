@@ -30,7 +30,7 @@ jobs:
       name: 'Authenticate to Google Cloud'
       uses: 'google-github-actions/auth@v2'
       with:
-        workload_identity_provider: 'projects/516722230723/locations/global/workloadIdentityPools/3rd-party-auth/providers/github'
+        workload_identity_provider: 'projects/516722230723/locations/global/workloadIdentityPools/3rd-party-auth-wif/providers/github'
         service_account: 'edw-bot-rw@kylash-edw.iam.gserviceaccount.com'
 
     - name: 'Set up Cloud SDK'
