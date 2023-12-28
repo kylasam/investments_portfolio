@@ -8,6 +8,8 @@ table_id = "test_inserts"
 # Create a BigQuery client
 client = bigquery.Client()
 
+
+print("STARTING THE SCRIPT")
 # Define the rows to be inserted
 rows_to_insert = [
     {"name": "Alice", "age": 30, "gender": "Female"},
