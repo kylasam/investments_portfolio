@@ -12,7 +12,10 @@ import os
 
 # Printing all environment variables
 for key, value in os.environ.items():
-    print(f'{key}: {value}')
+    print(f'{key}======>>>>>>>>>: {value}')
+
+print("ENV key for the GCP service account is")
+print(os.environ.get('GOOGLE_GHA_CREDS_PATH'))
 
 
 print("STARTING THE SCRIPT")
