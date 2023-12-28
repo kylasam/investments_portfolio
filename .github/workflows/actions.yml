@@ -59,6 +59,7 @@ jobs:
         pip install google-cloud-bigquery
     - name: execute py script # run main.py
       run: |-
+        gcloud config set project "kylash-edw"
         gcloud auth login --brief --cred-file="${{ steps.auth.outputs.credentials_file_path }}"
         gcloud services list
         python main.py
