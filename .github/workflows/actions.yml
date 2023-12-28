@@ -28,10 +28,11 @@ jobs:
       
     - id: 'auth'
       name: 'Authenticate to Google Cloud'
-      uses: 'google-github-actions/auth@v0'
+      uses: 'google-github-actions/auth@v2'
       with:
-        workload_identity_provider: 'projects/516722230723/locations/global/workloadIdentityPools/github-actions/providers/github'
-        service_account: 'github-actions@kylash-edw.iam.gserviceaccount.com'
+        credentials_json: '${{ secrets.GOOGLE_CREDENTIALS }}'
+        # workload_identity_provider: 'projects/516722230723/locations/global/workloadIdentityPools/github-actions/providers/github'
+        # service_account: 'github-actions@kylash-edw.iam.gserviceaccount.com'
 
     - name: 'Set up Cloud SDK'
       uses: 'google-github-actions/setup-gcloud@v2'
@@ -57,9 +58,9 @@ jobs:
         pip install -r requirements.txt
     - name: execute py script # run main.py
       run: |
-        gcloud alpha bq tables list --dataset=dbt_kna --quiet
-        gcloud auth activate-service-account "github-actions@kylash-edw.iam.gserviceaccount.com" --key-file=$GOOGLE_GHA_CREDS_PATH --project="kylash-edw"
-        echo -e "TESTING GCLOUD COMMANDS FROM LOCAL \n\n\n"
+        # gcloud alpha bq tables list --dataset=dbt_kna --quiet
+        # gcloud auth activate-service-account "github-actions@kylash-edw.iam.gserviceaccount.com" --key-file=$GOOGLE_GHA_CREDS_PATH --project="kylash-edw"
+        # echo -e "TESTING GCLOUD COMMANDS FROM LOCAL \n\n\n"
         gcloud config list
         echo -e "BELOW IS THE CREDS"
         cat $GOOGLE_GHA_CREDS_PATH}
