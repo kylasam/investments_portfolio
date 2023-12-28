@@ -8,6 +8,12 @@ table_id = "test_inserts"
 # Create a BigQuery client
 client = bigquery.Client()
 
+import os
+
+# Printing all environment variables
+for key, value in os.environ.items():
+    print(f'{key}: {value}')
+
 
 print("STARTING THE SCRIPT")
 # Define the rows to be inserted
