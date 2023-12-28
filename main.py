@@ -13,9 +13,9 @@ import google.auth
 
 credentials, project = google.auth.default()
 # credentials = service_account.Credentials.from_service_account_file(os.environ.get('GOOGLE_GHA_CREDS_PATH'))
-
+print("STARTING THE SCRIPT")
 client = bigquery.Client()
-
+print("GOT BQ CLIENT",client)
 
 
 
@@ -27,8 +27,8 @@ for key, value in os.environ.items():
 print("ENV key for the GCP service account is")
 print(os.environ.get('GOOGLE_GHA_CREDS_PATH'))
 
+print("SPREPRE ROWS")
 
-print("STARTING THE SCRIPT")
 # Define the rows to be inserted
 rows_to_insert = [
     {"name": "Alice", "age": 30, "gender": "Female"},
@@ -40,6 +40,7 @@ rows_to_insert = [
 table_ref = client.dataset(dataset_id).table(table_id)
 table = client.get_table(table_ref)
 
+print("INSERT ROWS")
 # Insert the rows into the BigQuery table
 errors = client.insert_rows(table, rows_to_insert)
 
