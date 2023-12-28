@@ -35,16 +35,16 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
-        
-    - name: 'Set up Cloud SDK'
-      uses: 'google-github-actions/setup-gcloud@v2'
-      
+              
     - id: 'auth'
       name: 'Authenticate to Google Cloud'
       uses: 'google-github-actions/auth@v2'
       with:
         workload_identity_provider: 'projects/516722230723/locations/global/workloadIdentityPools/github-actions/providers/github'
         service_account: 'github-actions@kylash-edw.iam.gserviceaccount.com'
+
+    - name: 'Set up Cloud SDK'
+      uses: 'google-github-actions/setup-gcloud@v2'
 
     - name: 'Use gcloud CLI'
       run: 'gcloud config list'
