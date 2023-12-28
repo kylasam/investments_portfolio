@@ -60,4 +60,4 @@ jobs:
         echo -e "TESTING GCLOUD COMMANDS FROM LOCAL \n\n\n"
         gcloud config list
         cat ${GCP_PRIVATE_KEY}
-        python main.py
+        bq ls dbt_kna
