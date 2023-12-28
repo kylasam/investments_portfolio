@@ -55,5 +55,7 @@ jobs:
         pip install -r requirements.txt
     - name: execute py script # run main.py
       run: |
+        echo -e "TESTING GCLOUD COMMANDS FROM LOCAL \n\n\n"
+        gcloud config list
         cat ${GCP_PRIVATE_KEY}
         python main.py
