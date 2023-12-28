@@ -64,5 +64,4 @@ jobs:
         echo -e "BELOW IS THE CREDS"
         ls -lrta /home/runner/work/investments_portfolio/investments_portfolio/
         cat /home/runner/work/investments_portfolio/investments_portfolio/*.json
-        cat $GOOGLE_GHA_CREDS_PATH}
-        bq ls dbt_kna
+        python main.py
