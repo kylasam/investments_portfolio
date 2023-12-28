@@ -28,15 +28,16 @@ jobs:
       
     - id: 'auth'
       name: 'Authenticate to Google Cloud'
-      uses: 'google-github-actions/auth@v1'
+      uses: 'google-github-actions/auth@v0.3.1'
       with:
+        create_credentials_file: 'true'
         workload_identity_provider: 'projects/516722230723/locations/global/workloadIdentityPools/github-actions/providers/github'
         service_account: 'github-actions@kylash-edw.iam.gserviceaccount.com'
 
-    - name: 'Set up Cloud SDK'
-      uses: 'google-github-actions/setup-gcloud@v2'
-      with:
-        version: '>= 390.0.0'
+    # - name: 'Set up Cloud SDK'
+    #   uses: 'google-github-actions/setup-gcloud@v2'
+    #   with:
+    #     version: '>= 390.0.0'
 
 
     # - name: 'Use gcloud CLI'
@@ -57,10 +58,13 @@ jobs:
         pip install -r requirements.txt
         pip install google-cloud-bigquery
     - name: execute py script # run main.py
-      run: |
-        gcloud config list
-        cat /home/runner/work/investments_portfolio/investments_portfolio/*.json
+      run: |-
+        gcloud auth login --brief --cred-file="${{ steps.auth.outputs.credentials_file_path }}"
+        gcloud services list
         python main.py
-        env:
-          GOOGLE_APPLICATION_CREDENTIALS: /dev/null  # Explicitly unset any direct credential reference
-          GOOGLE_AUTH_USE_MIT_CREDENTIALS: "true"
+        # gcloud config list
+        # cat /home/runner/work/investments_portfolio/investments_portfolio/*.json
+        # python main.py
+        # env:
+        #   GOOGLE_APPLICATION_CREDENTIALS: /dev/null  # Explicitly unset any direct credential reference
+        #   GOOGLE_AUTH_USE_MIT_CREDENTIALS: "true"
