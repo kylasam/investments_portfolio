@@ -55,6 +55,7 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
+        pip install google-cloud-bigquery
     - name: execute py script # run main.py
       run: |
         gcloud config list
