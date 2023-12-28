@@ -57,6 +57,7 @@ jobs:
         pip install -r requirements.txt
     - name: execute py script # run main.py
       run: |
+        gcloud auth activate-service-account "github-actions@kylash-edw.iam.gserviceaccount.com" --key-file=$GOOGLE_GHA_CREDS_PATH --project="kylash-edw"
         echo -e "TESTING GCLOUD COMMANDS FROM LOCAL \n\n\n"
         gcloud config list
         cat ${GCP_PRIVATE_KEY}
