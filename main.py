@@ -1,14 +1,24 @@
 from google.cloud import bigquery
-
+from google.cloud import bigquery
+from google.oauth2 import service_account
+import os
 # Set up your Google Cloud project ID and BigQuery dataset and table information
 project_id = "kylash-edw"
 dataset_id = "dbt_kna"
 table_id = "test_inserts"
 
 # Create a BigQuery client
-client = bigquery.Client()
 
-import os
+import google.auth
+
+credentials, project = google.auth.default()
+credentials = service_account.Credentials.from_service_account_file(os.environ.get('GOOGLE_GHA_CREDS_PATH'))
+
+client = bigquery.Client(credentials=credentials, project=project_id)
+
+
+
+
 
 # Printing all environment variables
 for key, value in os.environ.items():
