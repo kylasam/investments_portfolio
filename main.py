@@ -14,7 +14,7 @@ import google.auth
 credentials, project = google.auth.default()
 # credentials = service_account.Credentials.from_service_account_file(os.environ.get('GOOGLE_GHA_CREDS_PATH'))
 
-client = bigquery.Client(credentials=credentials, project=project_id)
+client = bigquery.Client()
 
 
 
