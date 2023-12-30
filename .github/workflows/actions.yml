@@ -48,5 +48,6 @@ jobs:
 
     - name: execute py script # run main.py
       run: |-
+        bq query --use_legacy_sql=false 'SELECT * FROM `kylash-edw.dbt_kna.rpt_5paisa_wallet_balance` LIMIT 10;'
         python main.py
 
