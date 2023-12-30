@@ -42,7 +42,7 @@ def read_credentials_from_config(file_path):
         # Parse the config file
         config = configparser.ConfigParser()
         config.read(file_path)
-        os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = config.get('bq', 'SERVICE_ACCNT_JSON_LOC')
+        #os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = config.get('bq', 'SERVICE_ACCNT_JSON_LOC')
         # Access the credentials
         creds = {
             "APP_NAME": config.get('Credentials', 'APP_NAME'),
@@ -515,7 +515,7 @@ if __name__ == '__main__':
     market_depth_table_ref = f"{project_id}.{dataset_id}.{market_depth_table_id}"
     print("-------TABLE DETAILS",market_depth_table_ref)
     print("ATTEMPT TO load bq table")
-    print(credentials)
+    print(credentials,os.environ)
     import pandas
     sql = """
         SELECT * FROM `kylash-edw.dbt_kna.rpt_5paisa_wallet_balance` LIMIT 10
