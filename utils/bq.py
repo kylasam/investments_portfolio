@@ -44,8 +44,9 @@ def load_bq(src_df, project_id, dataset_id, table_id, write_mode, logger):
     - None
     """
 
-    read_config(logger)
+    #read_config(logger)
     try:
+        os.environ["run_ts"] = datetime.datetime.now().strftime('%Y-%m-%d %H:%M')
         logger.info(f"\t\tLoading DataFrame to BigQuery: {project_id}.{dataset_id}{table_id}")
         # Ensure the 'src_df' parameter is a DataFrame
         if not isinstance(src_df, pd.DataFrame):
