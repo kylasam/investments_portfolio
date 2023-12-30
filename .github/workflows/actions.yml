@@ -14,8 +14,8 @@ defaults:
     shell: 'bash'
   
 jobs:
-  5Paisa_scrapper:
-    name : '5Paisa_scrapper'
+  _5Paisa_scrapper:
+    name : '_5Paisa_scrapper'
     runs-on: 'ubuntu-latest'
 
     steps:
