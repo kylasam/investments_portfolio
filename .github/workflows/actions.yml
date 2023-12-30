@@ -18,10 +18,14 @@ jobs:
     name: 'Test BigQuery default credentials'
     runs-on: 'ubuntu-latest'
     steps:
-      - name: 'Authenticate to Google Cloud for BigQuery test'
-        uses: 'google-github-actions/auth@v2'
-        with:
-          credentials_json: '${{ secrets.GOOGLE_CREDENTIALS }}'
+      - name: 'Set up BQ credientails'
+        run: |
+           echo "${{ secrets.GOOGLE_CREDENTIALS }}" | base64 -d > /tmp/key.json
+           export GOOGLE_APPLICATION_CREDENTIALS=$GITHUB_WORKSPACE/key.json
+           
+      - name: Authenticate with Google Cloud SDK
+        run: gcloud auth activate-service-account --key-file=$GOOGLE_APPLICATION_CREDENTIALS
+
 
       - name: 'Test BigQuery default credentials'
         run: |
