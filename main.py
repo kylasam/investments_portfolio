@@ -513,6 +513,8 @@ if __name__ == '__main__':
     market_depth_df = get_market_depth_request(access_token=access_token, user_key=credentials.get('USER_KEY'),
                                    client_code=credentials.get('CLIENTCODE'))
     market_depth_table_ref = f"{project_id}.{dataset_id}.{market_depth_table_id}"
+    print("ATTEMPT TO load bq table")
+    print(credentials)
     pandas_gbq.to_gbq(market_depth_df, market_depth_table_ref, project_id=project_id, if_exists='append')
     print("MARKET STATUS FOR BQ TABLE UPDATE SUCCESSFULLY COMPLETED!")
 
