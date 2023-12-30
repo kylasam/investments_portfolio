@@ -14,40 +14,15 @@ defaults:
     shell: 'bash'
   
 jobs:
-  _5Paisa_scrapper:
-    name : '_5Paisa_scrapper'
+  test_bigquery_credentials:
+    name: 'Test BigQuery default credentials'
     runs-on: 'ubuntu-latest'
-    # Add "id-token" with the intended permissions.
-    permissions:
-      contents: 'read'
-      id-token: 'write'
-
     steps:
-    - name: Checkout
-      uses: 'actions/checkout@v3'
-      
-    - id: 'auth'
-      name: 'Authenticate to Google Cloud'
-      uses: 'google-github-actions/auth@v2'
-      with:
-         credentials_json: '${{ secrets.GOOGLE_CREDENTIALS }}'
-        # create_credentials_file: 'true'
-        # workload_identity_provider: 'projects/516722230723/locations/global/workloadIdentityPools/github-actions/providers/github'
-        # service_account: 'github-actions@kylash-edw.iam.gserviceaccount.com'
+      - name: 'Authenticate to Google Cloud for BigQuery test'
+        uses: 'google-github-actions/auth@v2'
+        with:
+          credentials_json: '${{ secrets.GOOGLE_CREDENTIALS }}'
 
-
-    - name: setup python
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.10' # install the python version needed
-
-    - name: install python packages
-      run: |
-        python -m pip install --upgrade pip
-        pip install -r requirements.txt
-
-    - name: execute py script # run main.py
-      run: |-
-        bq query --use_legacy_sql=false 'SELECT * FROM `kylash-edw.dbt_kna.rpt_5paisa_wallet_balance` LIMIT 10;'
-        python main.py
-
+      - name: 'Test BigQuery default credentials'
+        run: |
+          bq query --use_legacy_sql=false 'SELECT * FROM `kylash-edw.dbt_kna.rpt_5paisa_wallet_balance` LIMIT 10;'
