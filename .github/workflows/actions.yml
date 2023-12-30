@@ -23,4 +23,4 @@ jobs:
            echo "${{ secrets.GOOGLE_CREDENTIALS }}" | base64 -d > $GITHUB_WORKSPACE/key.json
            export GOOGLE_APPLICATION_CREDENTIALS=$GITHUB_WORKSPACE/key.json
            gcloud auth activate-service-account --key-file=$GOOGLE_APPLICATION_CREDENTIALS
-           bq query --use_legacy_sql=false 'SELECT * FROM `kylash-edw.dbt_kna.rpt_5paisa_wallet_balance` LIMIT 10;'
+           python main.py
