@@ -502,14 +502,13 @@ if __name__ == '__main__':
     holdings_table_id = credentials.get('HOLDINGS_TABLE_ID')
     market_depth_table_id = credentials.get('MARKET_DEPTH_TABLE_ID')
     # Read access token from file
-    
     with open('access_token.txt', 'r') as file:
         access_token = file.read().strip()
     # Make API request using access token
     success = get_market_status(access_token=access_token, user_key=credentials.get('USER_KEY'),
                                    client_code=credentials.get('CLIENTCODE'))
 
-    refresh_login_creds(success,credentials,'624117')
+    refresh_login_creds(success,credentials,'937208')
 
     market_depth_df = get_market_depth_request(access_token=access_token, user_key=credentials.get('USER_KEY'),
                                    client_code=credentials.get('CLIENTCODE'))
