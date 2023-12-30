@@ -513,6 +513,7 @@ if __name__ == '__main__':
     market_depth_df = get_market_depth_request(access_token=access_token, user_key=credentials.get('USER_KEY'),
                                    client_code=credentials.get('CLIENTCODE'))
     market_depth_table_ref = f"{project_id}.{dataset_id}.{market_depth_table_id}"
+    print("-------TABLE DETAILS",market_depth_table_ref)
     print("ATTEMPT TO load bq table")
     print(credentials)
     import pandas
