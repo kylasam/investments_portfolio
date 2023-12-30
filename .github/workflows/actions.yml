@@ -14,13 +14,28 @@ defaults:
     shell: 'bash'
   
 jobs:
-  test_bigquery_credentials:
-    name: 'Test BigQuery default credentials'
+  5Paisa_scrapper:
+    name : '5Paisa_scrapper'
     runs-on: 'ubuntu-latest'
+
     steps:
-      - name: 'Set up BQ credientails'
-        run: |
-           echo "${{ secrets.GOOGLE_CREDENTIALS }}" | base64 -d > $GITHUB_WORKSPACE/key.json
-           export GOOGLE_APPLICATION_CREDENTIALS=$GITHUB_WORKSPACE/key.json
-           gcloud auth activate-service-account --key-file=$GOOGLE_APPLICATION_CREDENTIALS
-           python main.py
+    - name: Checkout
+      uses: 'actions/checkout@v3'
+
+    - name: setup python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10' # install the python version needed
+
+    - name: install python packages
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+
+    - name: execute py script # run main.py
+      run: |-
+        echo "${{ secrets.GOOGLE_CREDENTIALS }}" | base64 -d > $GITHUB_WORKSPACE/key.json
+        export GOOGLE_APPLICATION_CREDENTIALS=$GITHUB_WORKSPACE/key.json
+        gcloud auth activate-service-account --key-file=$GOOGLE_APPLICATION_CREDENTIALS
+        python main.py
+
