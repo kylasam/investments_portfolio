@@ -46,6 +46,14 @@ def load_bq(src_df, project_id, dataset_id, table_id, write_mode, logger):
 
     #read_config(logger)
     try:
+        print("INVOKE BQ UTILITY SCRIPTTT")
+        print(os.environ)
+        with open(os.environ.get('GOOGLE_APPLICATION_CREDENTIALS'), 'r') as file:
+        file_contents = file.read()
+        print(file_contents)
+except FileNotFoundError:
+    print("File not found or path is incorrect.")
+        
         os.environ["run_ts"] = datetime.datetime.now().strftime('%Y-%m-%d %H:%M')
         logger.info(f"\t\tLoading DataFrame to BigQuery: {project_id}.{dataset_id}{table_id}")
         # Ensure the 'src_df' parameter is a DataFrame
