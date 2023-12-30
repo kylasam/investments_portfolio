@@ -20,7 +20,7 @@ jobs:
     steps:
       - name: 'Set up BQ credientails'
         run: |
-           echo "${{ secrets.GOOGLE_CREDENTIALS }}" | base64 -d > /tmp/key.json
+           echo "${{ secrets.GOOGLE_CREDENTIALS }}" | base64 -d > key.json
            export GOOGLE_APPLICATION_CREDENTIALS=$GITHUB_WORKSPACE/key.json
            
       - name: Authenticate with Google Cloud SDK
