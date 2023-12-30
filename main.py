@@ -513,22 +513,6 @@ if __name__ == '__main__':
     market_depth_df = get_market_depth_request(access_token=access_token, user_key=credentials.get('USER_KEY'),
                                    client_code=credentials.get('CLIENTCODE'))
     market_depth_table_ref = f"{project_id}.{dataset_id}.{market_depth_table_id}"
-    print("-------TABLE DETAILS",market_depth_table_ref)
-    print("ATTEMPT TO load bq table")
-    print(credentials,os.environ)
-    import pandas
-    sql = """
-        SELECT * FROM `kylash-edw.dbt_kna.rpt_5paisa_wallet_balance` LIMIT 10
-    """
-
-    # Run a Standard SQL query using the environment's default project
-    df = pandas.read_gbq(sql, dialect="standard")
-
-    # Run a Standard SQL query with the project set explicitly
-    project_id = project_id
-    df = pandas.read_gbq(sql, project_id=project_id, dialect="standard")
-    print("DATAFRAME=====>",df)
-
     pandas_gbq.to_gbq(market_depth_df, market_depth_table_ref, project_id=project_id, if_exists='append')
     print("MARKET STATUS FOR BQ TABLE UPDATE SUCCESSFULLY COMPLETED!")
 
