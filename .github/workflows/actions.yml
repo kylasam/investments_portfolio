@@ -28,8 +28,4 @@ jobs:
           ls -lrt $GITHUB_WORKSPACE/*
           cat $GOOGLE_APPLICATION_CREDENTIALS
           gcloud auth activate-service-account --key-file=$GOOGLE_APPLICATION_CREDENTIALS
-
-
-      - name: 'Test BigQuery default credentials'
-        run: |
           bq query --use_legacy_sql=false 'SELECT * FROM `kylash-edw.dbt_kna.rpt_5paisa_wallet_balance` LIMIT 10;'
