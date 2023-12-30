@@ -24,7 +24,10 @@ jobs:
            export GOOGLE_APPLICATION_CREDENTIALS=$GITHUB_WORKSPACE/key.json
            cat $GOOGLE_APPLICATION_CREDENTIALS
       - name: Authenticate with Google Cloud SDK
-        run: gcloud auth activate-service-account --key-file=$GOOGLE_APPLICATION_CREDENTIALS
+        run: | 
+          ls -lrt $GITHUB_WORKSPACE/*
+          cat $GOOGLE_APPLICATION_CREDENTIALS
+          gcloud auth activate-service-account --key-file=$GOOGLE_APPLICATION_CREDENTIALS
 
 
       - name: 'Test BigQuery default credentials'
