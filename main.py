@@ -12,6 +12,8 @@ from tabulate import tabulate
 import re,os
 import csv
 from utils import *
+import gspread
+
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
@@ -96,7 +98,7 @@ def perform_totp_login(email_id, totp, pin, user_key):
         print(f"Request failed: {e}")
         sys.exit(99)
 
-def get_access_token(request_token, encry_key, user_id, user_key, file_path):
+def get_access_token(request_token, encry_key, user_id, user_key, get_totp_creds):
     url = 'https://Openapi.5paisa.com/VendorsAPI/Service1.svc/GetAccessToken'
     headers = {
         'Content-Type': 'application/json'
@@ -118,8 +120,7 @@ def get_access_token(request_token, encry_key, user_id, user_key, file_path):
             response_data = response.json()
             # Process the response data here
             access_token = response_data['body']['AccessToken']
-            with open(file_path, 'w') as file:
-                file.write(access_token)
+            get_totp_creds.update('B2', access_token)
             return access_token
         else:
             print(f"Request failed with status code: {response.status_code}")
@@ -473,11 +474,11 @@ def get_trade_book_request(access_token, user_key, client_code):
         return None
 
 
-def refresh_login_creds(success,credentials,totp):
+def refresh_login_creds(success,credentials,totp_token):
     if not success:
         print("Calling totp Login Mechanism")
         request_token = perform_totp_login(email_id=credentials.get('CLIENTCODE'),
-                                           totp=totp,
+                                           totp=totp_token,
                                            pin=credentials.get('USER_PIN'),
                                            user_key=credentials.get('USER_KEY'))
 
@@ -486,10 +487,9 @@ def refresh_login_creds(success,credentials,totp):
                                             encry_key=credentials.get('ENCRYPTION_KEY'),
                                             user_id=credentials.get('USER_ID'),
                                             user_key=credentials.get('USER_KEY'),
-                                            file_path='access_token.txt'
+                                            get_totp_creds=get_totp_creds
                                             )
-        with open('access_token.txt', 'r') as file:
-            access_token = file.read().strip()
+        access_token = get_totp_creds.acell('B2').value.strip()
 
 if __name__ == '__main__':
     config_file_path = 'credienrtials_config.ini'
@@ -501,14 +501,27 @@ if __name__ == '__main__':
     wallet_table_id = credentials.get('WALLET_BALANCE_TABLE_ID')
     holdings_table_id = credentials.get('HOLDINGS_TABLE_ID')
     market_depth_table_id = credentials.get('MARKET_DEPTH_TABLE_ID')
+
+    scope = ['https://www.googleapis.com/auth/spreadsheets']
+    client = gspread.service_account(filename=os.environ.get("GOOGLE_APPLICATION_CREDENTIALS"))
+
+    # Open the specific Google Sheet by its title
+    get_totp_creds = client.open_by_key(credentials.get('GSHEET_ID')).worksheet('authy') # Replace with your sheet name
+
+    # Read data from a specific cell
+    access_token = get_totp_creds.acell('B2').value.strip()  # Replace 'A1' with the cell you want to read
+    totp_token = get_totp_creds.acell('A2').value.strip()
+    # print(f"Value in cell B2: {access_token}")
+    # print(f"Value in cell A2: {totp_token}")
+    
     # Read access token from file
-    with open('access_token.txt', 'r') as file:
-        access_token = file.read().strip()
+    # with open('access_token.txt', 'r') as file:
+    #     access_token = file.read().strip()
     # Make API request using access token
     success = get_market_status(access_token=access_token, user_key=credentials.get('USER_KEY'),
                                    client_code=credentials.get('CLIENTCODE'))
 
-    refresh_login_creds(success,credentials,'937208')
+    refresh_login_creds(success,credentials,totp_token)
 
     market_depth_df = get_market_depth_request(access_token=access_token, user_key=credentials.get('USER_KEY'),
                                    client_code=credentials.get('CLIENTCODE'))
