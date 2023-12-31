@@ -14,7 +14,7 @@ defaults:
     shell: 'bash'
   
 jobs:
-  _5Paisa_scrapper:
+  EDW_PORTFOLIO_BULDER:
     name : '_5Paisa_scrapper'
     runs-on: 'ubuntu-latest'
 
