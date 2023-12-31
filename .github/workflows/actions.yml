@@ -51,7 +51,7 @@ jobs:
           
           # Loop to check the status of the job every 30 seconds
          while true; do
-          JOB_STATUS=$(dbt cloud status --account YOUR_DBT_ACCOUNT_ID --job $JOB_ID --json | jq -r '.status')
+          JOB_STATUS=$(dbt cloud status --account "${{ env.DBT_ACCOUNT_ID }}" --job $JOB_ID --json | jq -r '.status')
             
           if [[ "$JOB_STATUS" == "success" ]]; then
             echo "Job status: Success"
