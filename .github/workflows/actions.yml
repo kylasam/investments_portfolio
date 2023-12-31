@@ -44,7 +44,7 @@ jobs:
       uses: triedandtested-dev/trigger-dbt-cloud-job-v2-action@v1.3
       with:
           dbt_cloud_token: ${{ secrets.DBT_CLOUD_TOKEN }}
-          dbt_cloud_account_id: '{{ env_var("DBT_ACCOUNT_ID") }}'
+          dbt_cloud_account_id: "${{ env.DBT_ACCOUNT_ID }}"
           dbt_cloud_job_id: 491294
 
       # using the returned run status to throw an error on the PR if the dbt cloud job was not a sucess
