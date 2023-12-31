@@ -60,7 +60,7 @@ def read_credentials_from_config(file_path):
             "WALLET_BALANCE_TABLE_ID": config.get('bq', 'WALLET_BALANCE_TABLE_ID'),
             "HOLDINGS_TABLE_ID": config.get('bq', 'HOLDINGS_TABLE_ID'),
             "MARKET_DEPTH_TABLE_ID": config.get('bq','MARKET_DEPTH_TABLE_ID'),
-
+            "GSHEET_ID": config.get('gdrive', 'GSHEET_ID'),
         }
 
         return creds
