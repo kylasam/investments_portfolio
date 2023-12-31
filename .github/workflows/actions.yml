@@ -19,23 +19,47 @@ jobs:
     runs-on: 'ubuntu-latest'
 
     steps:
-    - name: Checkout
+    - name: CHECKOUT_REPO
       uses: 'actions/checkout@v3'
 
-    - name: setup python
+    - name: PYTHON_SETUP
       uses: actions/setup-python@v4
       with:
         python-version: '3.10' # install the python version needed
 
-    - name: install python packages
+    - name: PYTHON_LIBRARY_SETUP
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
 
-    - name: execute py script # run main.py
+    - name: REST_API_5PAISA # run main.py
       run: |-
         echo "${{ secrets.GOOGLE_CREDENTIALS }}" | base64 -d > $GITHUB_WORKSPACE/key.json
         export GOOGLE_APPLICATION_CREDENTIALS=$GITHUB_WORKSPACE/key.json
         gcloud auth activate-service-account --key-file=$GOOGLE_APPLICATION_CREDENTIALS
         python main.py
+        
+    - name: DBT_RUN_STAGING_HOLDINGS
+      id: get_job_run
+      uses: stevedow99/dbt-cloud-get-job-run-action@v1.0
+      with:
+          dbt_cloud_token: ${{ secrets.DBT_CLOUD_TOKEN }}
+          dbt_cloud_account_id: ${{ secrets.DBT_ACCOUNT_ID }}
+          dbt_cloud_job_id: 491294
+
+      # using the returned run status to throw an error on the PR if the dbt cloud job was not a sucess
+    - name: DBT_RUN_FAILURE
+      if:  steps.get_job_run.outputs.dbt_cloud_job_run_status != 'Success'
+      run: |
+          echo "dbt cloud job failed or was cancelled, run status: ${{ steps.get_job_run.outputs.dbt_cloud_job_run_status }}"
+          echo "view dbt cloud job run here: ${{ steps.get_job_run.outputs.dbt_cloud_job_run_url }}"
+          exit 1
+
+        # if the job was a success we log it
+    - name: DBT_RUN_SUCCESS
+      if:  steps.get_job_run.outputs.dbt_cloud_job_run_status == 'Success'
+      run: |
+          echo "dbt cloud finished sucessfully, run status: ${{ steps.get_job_run.outputs.dbt_cloud_job_run_status }}"
+          echo "view dbt cloud job run here: ${{ steps.get_job_run.outputs.dbt_cloud_job_run_url }}"
+          exit 0
 
