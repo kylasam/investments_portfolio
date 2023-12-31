@@ -44,7 +44,7 @@ jobs:
         pip install dbt
           
           # Authenticate with dbt Cloud (using your API key)
-        JOB_ID=$(curl -X POST -H "Authorization: Bearer ${{ secrets.DBT_CLOUD_TOKEN }}" -H "Content-Type: application/json" -d '{}' https://cloud.getdbt.com/api/v2/accounts/"${{ env.DBT_ACCOUNT_ID }}"/runs | jq -r '.id')
+        JOB_ID=$(curl -X POST -H "Authorization: Bearer ${{ secrets.DBT_CLOUD_TOKEN }}" -H "Content-Type: application/json" -d '{}' https://cloud.getdbt.com/api/v2/accounts/"${{ env.DBT_ACCOUNT_ID }}"/runs | jq -r '.data.id')
           
           # Loop to check the status of the job every 30 seconds
         while true; do
