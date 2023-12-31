@@ -39,26 +39,3 @@ jobs:
         gcloud auth activate-service-account --key-file=$GOOGLE_APPLICATION_CREDENTIALS
         python main.py
         
-    - name: DBT_RUN_STAGING_HOLDINGS
-      run: |-
-        pip install dbt
-          
-          # Authenticate with dbt Cloud (using your API key)
-        JOB_ID=$(curl -X POST -H "Authorization: Bearer ${{ secrets.DBT_CLOUD_TOKEN }}" -H "Content-Type: application/json" -d '{}' https://cloud.getdbt.com/api/v2/accounts/"${{ env.DBT_ACCOUNT_ID }}"/runs | jq -r '.data.id')
-          
-          # Loop to check the status of the job every 30 seconds
-        while true; do
-          JOB_STATUS=$(curl -H "Authorization: Bearer ${{ secrets.DBT_CLOUD_TOKEN }}" https://cloud.getdbt.com/api/v2/accounts/"${{ env.DBT_ACCOUNT_ID }}"/runs/491294 | jq -r '.data.attributes.status')
-            
-          if [[ "$JOB_STATUS" == "success" ]]; then
-            echo "Job status: Success"
-            exit 0  # Job succeeded, exit with success
-          elif [[ "$JOB_STATUS" == "error" || "$JOB_STATUS" == "cancelled" ]]; then
-            echo "Job status: $JOB_STATUS"
-            exit 1  # Job failed or cancelled, exit with failure
-          else
-            echo "Job status: $JOB_STATUS - Waiting..."
-            sleep 30  # Check again after 30 seconds
-          fi
-        done
-
