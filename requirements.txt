@@ -4,7 +4,9 @@ chardet==5.2.0
 charset-normalizer==3.3.2
 db-dtypes==1.1.1
 google-api-core==2.14.0
+google-api-python-client==2.111.0
 google-auth==2.25.1
+google-auth-httplib2==0.2.0
 google-auth-oauthlib==1.1.0
 google-cloud-bigquery==3.13.0
 google-cloud-bigquery-storage==2.23.0
@@ -14,6 +16,8 @@ google-resumable-media==2.6.0
 googleapis-common-protos==1.61.0
 grpcio==1.59.3
 grpcio-status==1.59.3
+gspread==5.12.4
+httplib2==0.22.0
 idna==3.6
 loguru==0.7.2
 numpy==1.26.2
@@ -31,6 +35,7 @@ pyasn1==0.5.1
 pyasn1-modules==0.3.0
 pycryptodome==3.19.0
 pydata-google-auth==1.8.2
+pyparsing==3.1.1
 python-dateutil==2.8.2
 pytz==2023.3.post1
 requests==2.31.0
@@ -39,6 +44,7 @@ rsa==4.9
 six==1.16.0
 tabulate==0.9.0
 tzdata==2023.3
+uritemplate==4.1.1
 urllib3==2.1.0
 wcwidth==0.2.12
 websocket-client==1.7.0
