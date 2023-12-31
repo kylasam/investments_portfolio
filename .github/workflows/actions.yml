@@ -41,7 +41,7 @@ jobs:
         
     - name: DBT_RUN_STAGING_HOLDINGS
       id: get_job_run
-      uses: triedandtested-dev/trigger-dbt-cloud-job-v2-action@v1.3
+      uses: stevedow99/dbt-cloud-get-job-run-action@v1.0
       with:
           dbt_cloud_token: ${{ secrets.DBT_CLOUD_TOKEN }}
           dbt_cloud_account_id: "${{ env.DBT_ACCOUNT_ID }}"
