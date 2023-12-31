@@ -40,26 +40,28 @@ jobs:
         python main.py
         
     - name: DBT_RUN_STAGING_HOLDINGS
-      id: get_job_run
-      uses: stevedow99/dbt-cloud-get-job-run-action@v1.0
-      with:
-          dbt_cloud_token: ${{ secrets.DBT_CLOUD_TOKEN }}
-          dbt_cloud_account_id: "${{ env.DBT_ACCOUNT_ID }}"
-          dbt_cloud_job_id: 491294
-
-      # using the returned run status to throw an error on the PR if the dbt cloud job was not a sucess
-    - name: DBT_RUN_FAILURE
-      if:  steps.get_job_run.outputs.dbt_cloud_job_run_status != 'Success'
-      run: |
-          echo "dbt cloud job failed or was cancelled, run status: ${{ steps.get_job_run.outputs.dbt_cloud_job_run_status }}"
-          echo "view dbt cloud job run here: ${{ steps.get_job_run.outputs.dbt_cloud_job_run_url }}"
-          exit 1
-
-        # if the job was a success we log it
-    - name: DBT_RUN_SUCCESS
-      if:  steps.get_job_run.outputs.dbt_cloud_job_run_status == 'Success'
-      run: |
-          echo "dbt cloud finished sucessfully, run status: ${{ steps.get_job_run.outputs.dbt_cloud_job_run_status }}"
-          echo "view dbt cloud job run here: ${{ steps.get_job_run.outputs.dbt_cloud_job_run_url }}"
-          exit 0
+      run: |-
+        pip install dbt
+          
+          # Authenticate with dbt Cloud (using your API key)
+        dbt cloud auth --token ${{ secrets.DBT_CLOUD_TOKEN }}
+          
+          # Run the dbt Cloud job and capture job ID
+        JOB_ID=$(dbt cloud run --account "${{ env.DBT_ACCOUNT_ID }}" --job 491294 --json | jq -r '.id')
+          
+          # Loop to check the status of the job every 30 seconds
+         while true; do
+          JOB_STATUS=$(dbt cloud status --account YOUR_DBT_ACCOUNT_ID --job $JOB_ID --json | jq -r '.status')
+            
+          if [[ "$JOB_STATUS" == "success" ]]; then
+            echo "Job status: Success"
+            exit 0  # Job succeeded, exit with success
+          elif [[ "$JOB_STATUS" == "error" || "$JOB_STATUS" == "cancelled" ]]; then
+            echo "Job status: $JOB_STATUS"
+            exit 1  # Job failed or cancelled, exit with failure
+          else
+            echo "Job status: $JOB_STATUS - Waiting..."
+            sleep 30  # Check again after 30 seconds
+          fi
+        done
 
