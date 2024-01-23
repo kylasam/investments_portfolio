@@ -43,7 +43,7 @@ jobs:
       with:
         owner: kylasam
         repo: nse_explorer
-        github_token: ${{ secrets.GITHUB_PERSONAL_ACCESS_TOKEN }}
+        github_token: ${{ secrets.PAT_INVESTMENTS_PORTFOLIO_NSE_EXPLORER }}
         workflow_file_name: actions.yml
         ref: main
         wait_interval: 10
