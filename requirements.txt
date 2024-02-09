@@ -33,7 +33,7 @@ py5paisa==0.7.5
 pyarrow==14.0.1
 pyasn1==0.5.1
 pyasn1-modules==0.3.0
-pycryptodome==3.19.0
+pycryptodome>=3.19.1
 pydata-google-auth==1.8.2
 pyparsing==3.1.1
 python-dateutil==2.8.2

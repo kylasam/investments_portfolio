@@ -46,7 +46,7 @@ jobs:
         export GOOGLE_APPLICATION_CREDENTIALS=$GITHUB_WORKSPACE/key.json
         gcloud auth activate-service-account --key-file=$GOOGLE_APPLICATION_CREDENTIALS
         python main.py
-        
+
     - name: TRIGGER_DBT_PROJECTS
       uses: convictional/trigger-workflow-and-wait@v1.6.1
       with:
