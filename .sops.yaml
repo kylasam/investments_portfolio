@@ -1,0 +1,3 @@
+creation_rules:
+  - gcp_kms: "projects/kylash-edw/locations/europe-west3/keyRings/sops/cryptoKeys/github"
+    path_regex: \.yaml$

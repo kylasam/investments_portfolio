@@ -44,7 +44,6 @@ def read_credentials_from_config(file_path):
         # Parse the config file
         config = configparser.ConfigParser()
         config.read(file_path)
-        #os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = config.get('bq', 'SERVICE_ACCNT_JSON_LOC')
         # Access the credentials
         creds = {
             "APP_NAME": config.get('Credentials', 'APP_NAME'),
@@ -193,30 +192,6 @@ def get_market_depth_request(access_token, user_key, client_code):
             "ClientCode": client_code,
             "Count": "1",
             "Data" : data
-            # "Data": [
-            #     {
-            #         "Exchange": "N",
-            #         "ExchangeType": "C",
-            #         "ScripCode": 3494
-            #     },
-            #     {
-            #         "Exchange": "N",
-            #         "ExchangeType": "C",
-            #         "ScripCode": 14428
-            #     }
-            #     ,
-            #     {
-            #         "Exchange": "N",
-            #         "ExchangeType": "C",
-            #         "ScripCode": 18118
-            #     }
-            #     ,
-            #     {
-            #         "Exchange": "N",
-            #         "ExchangeType": "C",
-            #         "ScripCode": 4963
-            #     }
-            # ]
         }
     }
 
@@ -224,14 +199,10 @@ def get_market_depth_request(access_token, user_key, client_code):
         response = requests.post(url, headers=headers, data=json.dumps(request_data))
         response.raise_for_status()  # Raise an exception for HTTP errors (4xx or 5xx)
 
-        print("==========",json_data)
-
         if response.status_code == 200:
             market_depth = response.json()['body']['Data']
-            # print(data)
             market_depth_df = pd.DataFrame(market_depth)
             market_depth_df['edw_publn_id'] = datetime.datetime.now()
-            #market_depth_df['LastTradeTime'] = market_depth_df['LastTradeTime'].apply(convert_date)
 
             print("\n\n\t\t\t++++++++++++++++++++++++++++++++++++++++++++")
             print(f"\t\t\t MARKET STATUS/MARKET DEPTH AS OF NOW {datetime.datetime.now()}")
@@ -492,7 +463,8 @@ def refresh_login_creds(success,credentials,totp_token):
         access_token = get_totp_creds.acell('B2').value.strip()
 
 if __name__ == '__main__':
-    config_file_path = 'credienrtials_config.ini'
+    config_file_path = os.path.join(os.getenv("GITHUB_WORKSPACE"), "decrypted_config.yaml")
+
 
     # Read credentials from the config file
     credentials = read_credentials_from_config(config_file_path)
@@ -511,13 +483,7 @@ if __name__ == '__main__':
     # Read data from a specific cell
     access_token = get_totp_creds.acell('B2').value.strip()  # Replace 'A1' with the cell you want to read
     totp_token = get_totp_creds.acell('A2').value.strip()
-    # print(f"Value in cell B2: {access_token}")
-    # print(f"Value in cell A2: {totp_token}")
-    
-    # Read access token from file
-    # with open('access_token.txt', 'r') as file:
-    #     access_token = file.read().strip()
-    # Make API request using access token
+
     success = get_market_status(access_token=access_token, user_key=credentials.get('USER_KEY'),
                                    client_code=credentials.get('CLIENTCODE'))
 
@@ -581,19 +547,5 @@ if __name__ == '__main__':
     #                client_code=credentials.get('CLIENTCODE')
     #                )
     #
-    #----------------------------------NOT IN USE
-    # if not success:
-    #     print("Calling totp Login Mechanism")
-    #     request_token = perform_totp_login(email_id=credentials.get('CLIENTCODE'),
-    #                                        totp='310689',
-    #                                        pin=credentials.get('USER_PIN'),
-    #                                        user_key=credentials.get('USER_KEY'))
-    #
-    #     if request_token is not None:
-    #         access_token = get_access_token(request_token=request_token,
-    #                                         encry_key=credentials.get('ENCRYPTION_KEY'),
-    #                                         user_id=credentials.get('USER_ID'),
-    #                                         user_key=credentials.get('USER_KEY'),
-    #                                         file_path='access_token.txt'
-    #                                         )
+
 
