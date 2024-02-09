@@ -13,6 +13,7 @@ import re,os
 import csv
 from utils import *
 import gspread
+import yaml
 
 
 logger = logging.getLogger(__name__)
@@ -40,33 +41,31 @@ def convert_date(date_string):
         return None
 
 def read_credentials_from_config(file_path):
-    try:
-        # Parse the config file
-        config = configparser.ConfigParser()
-        config.read(file_path)
-        # Access the credentials
-        creds = {
-            "APP_NAME": config.get('Credentials', 'APP_NAME'),
-            "APP_SOURCE": config.get('Credentials', 'APP_SOURCE'),
-            "USER_ID": config.get('Credentials', 'USER_ID'),
-            "PASSWORD": config.get('Credentials', 'PASSWORD'),
-            "USER_KEY": config.get('Credentials', 'USER_KEY'),
-            "ENCRYPTION_KEY": config.get('Credentials', 'ENCRYPTION_KEY'),
-            "CLIENTCODE": config.get('Credentials', 'CLIENTCODE'),
-            "USER_PIN": config.get('Credentials', 'USER_PIN'),
-            "PROJECT_ID": config.get('bq', 'PROJECT_ID'),
-            "DATASET_ID": config.get('bq', 'DATASET_ID'),
-            "WALLET_BALANCE_TABLE_ID": config.get('bq', 'WALLET_BALANCE_TABLE_ID'),
-            "HOLDINGS_TABLE_ID": config.get('bq', 'HOLDINGS_TABLE_ID'),
-            "MARKET_DEPTH_TABLE_ID": config.get('bq','MARKET_DEPTH_TABLE_ID'),
-            "GSHEET_ID": config.get('gdrive', 'GSHEET_ID'),
-        }
-
-        return creds
-
-    except configparser.Error as e:
-        print(f"Error reading config file: {e}")
-        return None
+    print("Current working directory:", os.getcwd())
+    with open(file_path, 'r') as file:
+        try:
+            yaml_data = yaml.safe_load(file)
+            if yaml_data:
+                creds = {
+                    "APP_NAME": yaml_data['5paisa_credentials']['APP_NAME'],
+                    "APP_SOURCE": yaml_data['5paisa_credentials']['APP_SOURCE'],
+                    "USER_ID": yaml_data['5paisa_credentials']['USER_ID'],
+                    "PASSWORD": yaml_data['5paisa_credentials']['PASSWORD'],
+                    "USER_KEY": yaml_data['5paisa_credentials']['USER_KEY'],
+                    "ENCRYPTION_KEY": yaml_data['5paisa_credentials']['ENCRYPTION_KEY'],
+                    "CLIENTCODE": yaml_data['5paisa_credentials']['CLIENTCODE'],
+                    "USER_PIN": yaml_data['5paisa_credentials']['USER_PIN'],
+                    "PROJECT_ID": yaml_data['bq']['PROJECT_ID'],
+                    "DATASET_ID": yaml_data['bq']['DATASET_ID'],
+                    "WALLET_BALANCE_TABLE_ID": yaml_data['bq']['WALLET_BALANCE_TABLE_ID'],
+                    "HOLDINGS_TABLE_ID": yaml_data['bq']['HOLDINGS_TABLE_ID'],
+                    "MARKET_DEPTH_TABLE_ID": yaml_data['bq']['MARKET_DEPTH_TABLE_ID'],
+                    "GSHEET_ID": yaml_data['gdrive']['GSHEET_ID'],
+                }
+                return creds
+            return None
+        except yaml.YAMLError as e:
+            print(f"Error reading YAML file: {e}")
 
 def perform_totp_login(email_id, totp, pin, user_key):
     url = 'https://Openapi.5paisa.com/VendorsAPI/Service1.svc/TOTPLogin'
