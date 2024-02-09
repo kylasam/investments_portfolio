@@ -32,12 +32,21 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt
 
+    - name: SOPS_INSTALL
+      run: |
+        sudo apt-get update && sudo apt-get install -y apt-transport-https gnupg
+        curl -L -s https://github.com/mozilla/sops/releases/download/v3.7.1/sops_3.7.1_amd64.deb -o sops.deb
+        sudo dpkg -i sops.deb
+        sudo apt-get install -f
+
     - name: REST_API_5PAISA # run main.py
       run: |-
+        sops -d secrets.yml | sed 's/_unencrypted//g' > $GITHUB_WORKSPACE/decrypted_config.yaml
         echo "${{ secrets.GOOGLE_CREDENTIALS }}" | base64 -d > $GITHUB_WORKSPACE/key.json
         export GOOGLE_APPLICATION_CREDENTIALS=$GITHUB_WORKSPACE/key.json
         gcloud auth activate-service-account --key-file=$GOOGLE_APPLICATION_CREDENTIALS
         python main.py
+        
     - name: TRIGGER_DBT_PROJECTS
       uses: convictional/trigger-workflow-and-wait@v1.6.1
       with:
