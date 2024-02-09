@@ -41,10 +41,10 @@ jobs:
 
     - name: REST_API_5PAISA # run main.py
       run: |-
-        sops -d secrets.yaml | sed 's/_unencrypted//g' > $GITHUB_WORKSPACE/decrypted_config.yaml
         echo "${{ secrets.GOOGLE_CREDENTIALS }}" | base64 -d > $GITHUB_WORKSPACE/key.json
         export GOOGLE_APPLICATION_CREDENTIALS=$GITHUB_WORKSPACE/key.json
         gcloud auth activate-service-account --key-file=$GOOGLE_APPLICATION_CREDENTIALS
+        sops -d secrets.yaml | sed 's/_unencrypted//g' > $GITHUB_WORKSPACE/decrypted_config.yaml
         python main.py
 
     - name: TRIGGER_DBT_PROJECTS
