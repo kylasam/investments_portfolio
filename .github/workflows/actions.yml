@@ -2,7 +2,7 @@ name: 5Paisa data Scrapper
 
 on:
   schedule:
-    - cron: '*/15 6-13 * * 1-6' # Runs from Mon-Sat daily from IST time 9:30 till 4:30 for every 15mins
+    - cron: '*/15 5-13 * * 1-6' # Runs from Mon-Sat daily from IST time 9:30 till 4:30 for every 15mins
   workflow_dispatch:
   
 env:
