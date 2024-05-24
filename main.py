@@ -510,13 +510,13 @@ if __name__ == '__main__':
     access_token = get_totp_creds.acell('B2').value.strip()  # Replace 'A1' with the cell you want to read
     totp_token = get_totp_creds.acell('A2').value.strip()
 
-    get_market_status(access_token=access_token, user_key=credentials.get('USER_KEY'),
-                                   client_code=credentials.get('CLIENTCODE'))
-
     success = get_connection_test(access_token=access_token, user_key=credentials.get('USER_KEY'),
                          client_code=credentials.get('CLIENTCODE'))
 
     refresh_login_creds(success,credentials,totp_token)
+
+    get_market_status(access_token=access_token, user_key=credentials.get('USER_KEY'),
+                                   client_code=credentials.get('CLIENTCODE'))
 
     market_depth_df = get_market_depth_request(access_token=access_token, user_key=credentials.get('USER_KEY'),
                                    client_code=credentials.get('CLIENTCODE'))
