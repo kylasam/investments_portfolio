@@ -14,6 +14,7 @@ import csv
 from utils import *
 import gspread
 import yaml
+import pyotp
 
 
 logger = logging.getLogger(__name__)
@@ -68,6 +69,7 @@ def read_credentials_from_config(file_path):
             print(f"Error reading YAML file: {e}")
 
 def perform_totp_login(email_id, totp, pin, user_key):
+    print("CALLLLLLLLLL TOTP LOGINNNNNNNNNNNN")
     url = 'https://Openapi.5paisa.com/VendorsAPI/Service1.svc/TOTPLogin'
     headers = {
         'Content-Type': 'application/json'
@@ -85,10 +87,12 @@ def perform_totp_login(email_id, totp, pin, user_key):
 
     try:
         response = requests.post(url, headers=headers, json=data)
+        print("TOTP LOGIN ESPONSE ================>",response)
         if response.status_code == 200:
             response_data = response.json()
             # Process the response data here
             request_token = response_data['body']['RequestToken']
+            print("REQUESSSSSSSSTTTTTT TOKKKKKKKKEN",request_token)
             return request_token
         else:
             print(f"Request failed with status code: {response.status_code}")
@@ -118,6 +122,7 @@ def get_access_token(request_token, encry_key, user_id, user_key, get_totp_creds
             response_data = response.json()
             # Process the response data here
             access_token = response_data['body']['AccessToken']
+            print("NEWWWWWWWWWWWWWWW")
             get_totp_creds.update('B2', access_token)
             return access_token
         else:
@@ -161,6 +166,7 @@ def get_market_status(access_token, user_key, client_code):
         return None
 
 def get_market_depth_request(access_token, user_key, client_code):
+    print("CALLINGGGGG GET MARKET DEPTH")
     file_path = 'script_codes.txt'  # Replace 'your_file.txt' with your file path
     data = []
     with open(file_path, 'r') as file:
@@ -178,9 +184,8 @@ def get_market_depth_request(access_token, user_key, client_code):
     url = 'https://Openapi.5paisa.com/VendorsAPI/Service1.svc/MarketDepth'
 
     headers = {
-        'Authorization': f'bearer {access_token}',
-        'Content-Type': 'application/json',
-        'Cookie': '5paisacookie=qwmwpam1su3s4lvwlwyevrl5; NSC_JOh0em50e1pajl5b5jvyafempnkehc3=ffffffffaf103e0f45525d5f4f58455e445a4a423660'
+        'Authorization': f'Bearer {access_token}',
+        'Content-Type': 'application/json'
     }
 
     request_data = {
@@ -245,10 +250,38 @@ def get_holdings_request(access_token, user_key, client_code):
             return holding_details_df
         else:
             print(f"Request failed with status code: {response.status_code}")
+            return None  # API call failed
+    except requests.RequestException as e:
+        print(f"Request failed: {e}")
+        return None  # API call failed
+
+def get_connection_test(access_token, user_key, client_code):
+    url = 'https://Openapi.5paisa.com/VendorsAPI/Service1.svc/V3/Margin'
+    headers = {
+        'Authorization': f'bearer {access_token}',
+        'Content-Type': 'application/json',
+        'Cookie': 'NSC_JOh0em50e1pajl5b5jvyafempnkehc3=ffffffffaf103e0f45525d5f4f58455e445a4a423660'
+    }
+    payload = {
+        "head": {
+            "key": user_key
+        },
+        "body": {
+            "ClientCode": client_code
+        }
+    }
+
+    try:
+        response = requests.post(url, headers=headers, json=payload)
+        if response.status_code == 200:
+            return True
+        else:
+            print(f"Request failed with status code: {response.status_code}")
             return False  # API call failed
     except requests.RequestException as e:
         print(f"Request failed: {e}")
-        sys.exit(97)  # API call failed
+        return False  # API call failed
+
 
 def get_wallet_balance_request(access_token, user_key, client_code):
     url = 'https://Openapi.5paisa.com/VendorsAPI/Service1.svc/V3/Margin'
@@ -280,10 +313,10 @@ def get_wallet_balance_request(access_token, user_key, client_code):
             return wallet_details_df
         else:
             print(f"Request failed with status code: {response.status_code}")
-            return False  # API call failed
+            return None  # API call failed
     except requests.RequestException as e:
         print(f"Request failed: {e}")
-        return False  # API call failed
+        return None  # API call failed
 
 def place_order(access_token, user_key, client_code, app_source,stock_code):
     url = 'https://openapi.5paisa.com/VendorsAPI/Service1.svc/V1/PlaceOrderRequest'
@@ -444,22 +477,40 @@ def get_trade_book_request(access_token, user_key, client_code):
         return None
 
 
-def refresh_login_creds(success,credentials,totp_token):
-    if not success:
-        print("Calling totp Login Mechanism")
-        request_token = perform_totp_login(email_id=credentials.get('CLIENTCODE'),
-                                           totp=totp_token,
-                                           pin=credentials.get('USER_PIN'),
-                                           user_key=credentials.get('USER_KEY'))
+def generate_totp(totp_secret):
+    """Generate a fresh TOTP code from the secret at call time."""
+    totp = pyotp.TOTP(totp_secret)
+    code = totp.now()
+    print(f"Generated TOTP code (valid for {30 - datetime.datetime.now().second % 30}s): {code}")
+    return code
 
+
+def refresh_login_creds(success, credentials, totp_secret, get_totp_creds):
+    """Re-login via TOTP if token is stale. Returns the current valid access_token."""
+    if not success:
+        print("Access token invalid — performing TOTP re-login")
+        totp_code = generate_totp(totp_secret)
+        request_token = perform_totp_login(
+            email_id=credentials.get('CLIENTCODE'),
+            totp=totp_code,
+            pin=credentials.get('USER_PIN'),
+            user_key=credentials.get('USER_KEY')
+        )
         if request_token is not None:
-            access_token = get_access_token(request_token=request_token,
-                                            encry_key=credentials.get('ENCRYPTION_KEY'),
-                                            user_id=credentials.get('USER_ID'),
-                                            user_key=credentials.get('USER_KEY'),
-                                            get_totp_creds=get_totp_creds
-                                            )
-        access_token = get_totp_creds.acell('B2').value.strip()
+            print("Getting new access token")
+            new_token = get_access_token(
+                request_token=request_token,
+                encry_key=credentials.get('ENCRYPTION_KEY'),
+                user_id=credentials.get('USER_ID'),
+                user_key=credentials.get('USER_KEY'),
+                get_totp_creds=get_totp_creds
+            )
+            print("New access token obtained:", new_token)
+        else:
+            print("ERROR: Could not obtain request_token from TOTP login")
+            sys.exit(98)
+    # Always return the current token from the sheet (refreshed or pre-existing)
+    return get_totp_creds.acell('B2').value.strip()
 
 if __name__ == '__main__':
     config_file_path = os.path.join(os.getenv("GITHUB_WORKSPACE"), "decrypted_config.yaml")
@@ -479,34 +530,63 @@ if __name__ == '__main__':
     # Open the specific Google Sheet by its title
     get_totp_creds = client.open_by_key(credentials.get('GSHEET_ID')).worksheet('authy') # Replace with your sheet name
 
-    # Read data from a specific cell
-    access_token = get_totp_creds.acell('B2').value.strip()  # Replace 'A1' with the cell you want to read
-    totp_token = get_totp_creds.acell('A2').value.strip()
+    # A2 now holds the TOTP *secret* (base32 string from 5paisa authenticator setup),
+    # not a time-sensitive pre-generated code.
+    # B2 still holds the current access token (refreshed here when stale).
+    totp_secret = get_totp_creds.acell('A2').value.strip()
+    access_token = get_totp_creds.acell('B2').value.strip()
+    print("Current access token from sheet:", access_token)
 
-    success = get_market_status(access_token=access_token, user_key=credentials.get('USER_KEY'),
-                                   client_code=credentials.get('CLIENTCODE'))
+    # Test if the current token is valid
+    success = get_connection_test(
+        access_token=access_token,
+        user_key=credentials.get('USER_KEY'),
+        client_code=credentials.get('CLIENTCODE')
+    )
+    print("Connection test result:", success)
 
-    refresh_login_creds(success,credentials,totp_token)
+    # Refresh token via live TOTP if stale; get back the valid token
+    access_token = refresh_login_creds(success, credentials, totp_secret, get_totp_creds)
+    print("Access token after refresh check:", access_token)
 
-    market_depth_df = get_market_depth_request(access_token=access_token, user_key=credentials.get('USER_KEY'),
-                                   client_code=credentials.get('CLIENTCODE'))
+    # --- Market Depth ---
+    market_depth_df = get_market_depth_request(
+        access_token=access_token,
+        user_key=credentials.get('USER_KEY'),
+        client_code=credentials.get('CLIENTCODE')
+    )
     market_depth_table_ref = f"{project_id}.{dataset_id}.{market_depth_table_id}"
-    pandas_gbq.to_gbq(market_depth_df, market_depth_table_ref, project_id=project_id, if_exists='append')
-    print("MARKET STATUS FOR BQ TABLE UPDATE SUCCESSFULLY COMPLETED!")
+    if market_depth_df is not None:
+        pandas_gbq.to_gbq(market_depth_df, market_depth_table_ref, project_id=project_id, if_exists='append')
+        print("MARKET DEPTH BQ TABLE UPDATE SUCCESSFULLY COMPLETED!")
+    else:
+        print("WARNING: Skipping market depth BQ update — no data returned (API may have failed or returned empty).")
 
-    # Construct the fully qualified table ID
-    holdings_table_df = get_holdings_request(access_token=access_token, user_key=credentials.get('USER_KEY'),
-                             client_code=credentials.get('CLIENTCODE'))
+    # --- Holdings ---
+    holdings_table_df = get_holdings_request(
+        access_token=access_token,
+        user_key=credentials.get('USER_KEY'),
+        client_code=credentials.get('CLIENTCODE')
+    )
     holdings_table_ref = f"{project_id}.{dataset_id}.{holdings_table_id}"
-    pandas_gbq.to_gbq(holdings_table_df, holdings_table_ref, project_id=project_id, if_exists='append')
-    print("HOLDINGS FOR BQ TABLE UPDATE SUCCESSFULLY COMPLETED!")
+    if holdings_table_df is not None:
+        pandas_gbq.to_gbq(holdings_table_df, holdings_table_ref, project_id=project_id, if_exists='append')
+        print("HOLDINGS BQ TABLE UPDATE SUCCESSFULLY COMPLETED!")
+    else:
+        print("WARNING: Skipping holdings BQ update — no data returned (API may have failed or returned empty).")
 
-    # Construct the fully qualified table ID
+    # --- Wallet Balance ---
     table_ref = f"{project_id}.{dataset_id}.{wallet_table_id}"
-    wallet_bal_df = get_wallet_balance_request(access_token=access_token, user_key=credentials.get('USER_KEY'),
-                         client_code=credentials.get('CLIENTCODE'))
-    pandas_gbq.to_gbq(wallet_bal_df, table_ref, project_id=project_id, if_exists='append')
-    print("BQ TABLE UPDATE SUCCESSFULLY COMPLETED!")
+    wallet_bal_df = get_wallet_balance_request(
+        access_token=access_token,
+        user_key=credentials.get('USER_KEY'),
+        client_code=credentials.get('CLIENTCODE')
+    )
+    if wallet_bal_df is not None:
+        pandas_gbq.to_gbq(wallet_bal_df, table_ref, project_id=project_id, if_exists='append')
+        print("WALLET BALANCE BQ TABLE UPDATE SUCCESSFULLY COMPLETED!")
+    else:
+        print("WARNING: Skipping wallet balance BQ update — no data returned (API may have failed or returned empty).")
 
 
 
