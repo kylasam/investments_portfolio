@@ -18,7 +18,7 @@ grpcio==1.59.3
 grpcio-status==1.59.3
 gspread==5.12.4
 httplib2==0.22.0
-idna==3.6
+idna==3.7
 loguru==0.7.2
 numpy==1.26.2
 oauthlib==3.2.2

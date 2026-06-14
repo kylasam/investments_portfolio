@@ -129,6 +129,33 @@ def get_access_token(request_token, encry_key, user_id, user_key, get_totp_creds
             print(f"Request failed with status code: {response.status_code}")
     except requests.RequestException as e:
         print(f"Request failed: {e}")
+        
+def get_connection_test(access_token, user_key, client_code):
+    url = 'https://Openapi.5paisa.com/VendorsAPI/Service1.svc/V3/Margin'
+    headers = {
+        'Authorization': f'bearer {access_token}',
+        'Content-Type': 'application/json',
+        'Cookie': 'NSC_JOh0em50e1pajl5b5jvyafempnkehc3=ffffffffaf103e0f45525d5f4f58455e445a4a423660'
+    }
+    payload = {
+        "head": {
+            "key": user_key
+        },
+        "body": {
+            "ClientCode": client_code
+        }
+    }
+
+    try:
+        response = requests.post(url, headers=headers, json=payload)
+        if response.status_code == 200:
+            return True
+        else:
+            print(f"Request failed with status code: {response.status_code}")
+            return False  # API call failed
+    except requests.RequestException as e:
+        print(f"Request failed: {e}")
+        return False  # API call failed
 
 def get_market_status(access_token, user_key, client_code):
     url = 'https://Openapi.5paisa.com/VendorsAPI/Service1.svc/MarketStatus'
@@ -548,6 +575,13 @@ if __name__ == '__main__':
     # Refresh token via live TOTP if stale; get back the valid token
     access_token = refresh_login_creds(success, credentials, totp_secret, get_totp_creds)
     print("Access token after refresh check:", access_token)
+
+    # --- Market Status (informational) ---
+    get_market_status(
+        access_token=access_token,
+        user_key=credentials.get('USER_KEY'),
+        client_code=credentials.get('CLIENTCODE')
+    )
 
     # --- Market Depth ---
     market_depth_df = get_market_depth_request(
