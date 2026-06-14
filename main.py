@@ -564,17 +564,13 @@ if __name__ == '__main__':
     access_token = get_totp_creds.acell('B2').value.strip()
     print("Current access token from sheet:", access_token)
 
-    # Test if the current token is valid
-    success = get_connection_test(
-        access_token=access_token,
-        user_key=credentials.get('USER_KEY'),
-        client_code=credentials.get('CLIENTCODE')
-    )
-    print("Connection test result:", success)
-
-    # Refresh token via live TOTP if stale; get back the valid token
-    access_token = refresh_login_creds(success, credentials, totp_secret, get_totp_creds)
-    print("Access token after refresh check:", access_token)
+    # Always re-login via TOTP to get a fresh token every run.
+    # The Margin endpoint may return 200 with a stale token while other
+    # endpoints (Holding, OrderBook) correctly reject it with 401.
+    # Generating a fresh token each run avoids this inconsistency entirely.
+    print("Performing TOTP re-login to ensure fresh access token...")
+    access_token = refresh_login_creds(False, credentials, totp_secret, get_totp_creds)
+    print("Access token after re-login:", access_token)
 
     # --- Market Status (informational) ---
     get_market_status(
