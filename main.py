@@ -99,7 +99,7 @@ def perform_totp_login(email_id, totp, pin, user_key):
             print(f"Request failed with status code: {response.status_code}")
     except requests.RequestException as e:
         print(f"Request failed: {e}")
-        sys.exit(99)
+        return None
 
 def get_access_token(request_token, encry_key, user_id, user_key, get_totp_creds):
     url = 'https://Openapi.5paisa.com/VendorsAPI/Service1.svc/GetAccessToken'
