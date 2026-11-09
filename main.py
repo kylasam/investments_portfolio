@@ -1,3 +1,4 @@
+import time
 import json
 import sys
 
@@ -505,10 +506,16 @@ def get_trade_book_request(access_token, user_key, client_code):
 
 
 def generate_totp(totp_secret):
-    """Generate a fresh TOTP code from the secret at call time."""
+    """Generate a fresh TOTP code from the secret at call time.
+    Ensures at least 8 seconds of validity remain so code does not expire during network transit."""
+    remaining = 30 - (datetime.datetime.now().second % 30)
+    if remaining < 8:
+        print(f"TOTP code has only {remaining}s left; sleeping {remaining + 1}s to obtain fresh cycle...")
+        time.sleep(remaining + 1)
     totp = pyotp.TOTP(totp_secret)
     code = totp.now()
-    print(f"Generated TOTP code (valid for {30 - datetime.datetime.now().second % 30}s): {code}")
+    remaining = 30 - (datetime.datetime.now().second % 30)
+    print(f"Generated TOTP code (valid for {remaining}s): {code}")
     return code
 
 
@@ -516,13 +523,20 @@ def refresh_login_creds(success, credentials, totp_secret, get_totp_creds):
     """Re-login via TOTP if token is stale. Returns the current valid access_token."""
     if not success:
         print("Access token invalid — performing TOTP re-login")
-        totp_code = generate_totp(totp_secret)
-        request_token = perform_totp_login(
-            email_id=credentials.get('CLIENTCODE'),
-            totp=totp_code,
-            pin=credentials.get('USER_PIN'),
-            user_key=credentials.get('USER_KEY')
-        )
+        request_token = None
+        for attempt in range(1, 3):
+            totp_code = generate_totp(totp_secret)
+            request_token = perform_totp_login(
+                email_id=credentials.get('CLIENTCODE'),
+                totp=totp_code,
+                pin=credentials.get('USER_PIN'),
+                user_key=credentials.get('USER_KEY')
+            )
+            if request_token is not None:
+                break
+            print(f"Attempt {attempt} failed to obtain request_token. Waiting 5s before retrying...")
+            time.sleep(5)
+
         if request_token is not None:
             print("Getting new access token")
             new_token = get_access_token(
@@ -534,7 +548,7 @@ def refresh_login_creds(success, credentials, totp_secret, get_totp_creds):
             )
             print("New access token obtained:", new_token)
         else:
-            print("ERROR: Could not obtain request_token from TOTP login")
+            print("ERROR: Could not obtain request_token from TOTP login after retries")
             sys.exit(98)
     # Always return the current token from the sheet (refreshed or pre-existing)
     return get_totp_creds.acell('B2').value.strip()
